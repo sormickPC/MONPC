@@ -1,0 +1,11 @@
+# Ne jamais publier de secrets ni de données personnelles
+.env
+.env.*
+node_modules/
+*.pem
+*.key
+*.log
+*.txt
+exports/
+backup*/
+.DS_Store
