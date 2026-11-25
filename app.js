@@ -595,12 +595,12 @@ const ALL_STATUS = Array.from({ length: 400 }, (_, i) => i + 200);
 async function davDiag(c, p = '/') {
   const pp = p.endsWith('/') ? p : p + '/', L = [];
   L.push('Lecteur : ' + (c.name || hostOf(c.url)) + ' · utilisateur : ' + (c.user ? c.user.length + ' caractères' : 'vide') + ' · mot de passe / jeton : ' + (c.pass ? c.pass.length + ' caractères' : 'vide'));
-  L.push('Version de la page : ' + ((document.querySelector('script[src*="app.js"]') || {}).src || '?').replace(/^.*\?v=/, '') + ' (attendue : 20261125d)');
+  L.push('Version de la page : ' + ((document.querySelector('script[src*="app.js"]') || {}).src || '?').replace(/^.*\?v=/, '') + ' (attendue : 20261125e)');
   try { L.push('Adresse demandée : ' + davUrl(c, pp)); } catch (e) { L.push(e.message); }
   L.push('Chemin : ' + pp + ' · accès : ' + (D.proxy ? 'passerelle' : c.relay === true ? 'par le relais' : 'direct (puis relais si refusé)'));
-  const probe = async (label, method, body, hdrs) => {
+  const probe = async (label, method, body, hdrs, cc = c) => {
     try {
-      const r = await dav(c, method, pp, body, hdrs, ALL_STATUS), txt = await r.text(), ct = r.headers.get('content-type') || '?';
+      const r = await dav(cc, method, pp, body, hdrs, ALL_STATUS), txt = await r.text(), ct = r.headers.get('content-type') || '?';
       const x = new DOMParser().parseFromString(txt, 'text/xml'), rs = x.getElementsByTagName('parsererror').length ? [] : [...x.getElementsByTagNameNS('*', 'response')];
       const ru = r.headers.get('x-relay-up');
       L.push('— ' + label + ' : HTTP ' + r.status + ' · type ' + ct + ' · ' + txt.length + ' caractères' + (rs.length ? ' · ' + rs.length + ' entrée(s)' : '') + (ru ? ' · relais : ' + ru : ''));
@@ -623,6 +623,7 @@ async function davDiag(c, p = '/') {
   } else {
     if (c.relay === true) for (const m of ['ref', 'ref,noct', 'ua', 'ref,noct,ua'])   // le relais imite d'autres clients : on voit lequel obtient une vraie réponse
       await probe('essai relais « ' + m + ' »', 'PROPFIND', PF_BODY, { Depth: '1', ...PF_HDR, 'X-Relay-Mode': m });
+    if (c.relay === true) await probe('TEST avec un faux mot de passe (volontaire)', 'PROPFIND', PF_BODY, { Depth: '1', ...PF_HDR }, { ...c, pass: 'faux-mot-de-passe-test' });
     const g = await probe('GET (lecture simple du dossier)', 'GET', null, {});
     if (g && g.txt) L.push('  début : ' + g.txt.slice(0, 300).replace(/\s+/g, ' '));
     L.push('Aucune liste WebDAV reconnue. Si tous les essais répondent 204 ou vide, le serveur accepte le jeton mais ne donne rien : vérifiez le jeton et l’espace qu’il couvre (côté fournisseur).');
