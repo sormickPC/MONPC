@@ -595,7 +595,7 @@ const ALL_STATUS = Array.from({ length: 400 }, (_, i) => i + 200);
 async function davDiag(c, p = '/') {
   const pp = p.endsWith('/') ? p : p + '/', L = [];
   L.push('Lecteur : ' + (c.name || hostOf(c.url)) + ' · utilisateur : ' + (c.user ? c.user.length + ' caractères' : 'vide') + ' · mot de passe / jeton : ' + (c.pass ? c.pass.length + ' caractères' : 'vide'));
-  L.push('Version de la page : ' + ((document.querySelector('script[src*="app.js"]') || {}).src || '?').replace(/^.*\?v=/, '') + ' (attendue : 20261125c)');
+  L.push('Version de la page : ' + ((document.querySelector('script[src*="app.js"]') || {}).src || '?').replace(/^.*\?v=/, '') + ' (attendue : 20261125d)');
   try { L.push('Adresse demandée : ' + davUrl(c, pp)); } catch (e) { L.push(e.message); }
   L.push('Chemin : ' + pp + ' · accès : ' + (D.proxy ? 'passerelle' : c.relay === true ? 'par le relais' : 'direct (puis relais si refusé)'));
   const probe = async (label, method, body, hdrs) => {
